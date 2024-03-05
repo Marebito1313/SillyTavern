@@ -150,7 +150,6 @@ export class SlashCommandHandler {
                     executeOnAi: isTrueBoolean(args.bot),
                     executeOnChatChange: isTrueBoolean(args.load),
                     executeOnGroupMemberDraft: isTrueBoolean(args.group),
-                    automationId: args.automationId ?? '',
                 },
             );
         } catch (ex) {
@@ -172,7 +171,6 @@ export class SlashCommandHandler {
                     executeOnAi: args.bot === undefined ? undefined : isTrueBoolean(args.bot),
                     executeOnChatChange: args.load === undefined ? undefined : isTrueBoolean(args.load),
                     executeOnGroupMemberDraft: args.group === undefined ? undefined : isTrueBoolean(args.group),
-                    automationId: args.automationId ?? '',
                 },
             );
         } catch (ex) {

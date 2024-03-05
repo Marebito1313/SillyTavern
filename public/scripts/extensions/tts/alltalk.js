@@ -196,18 +196,14 @@ class AllTalkTtsProvider {
         $('#narrator_voice').val(this.settings.narrator_voice_gen);
 
         console.debug('AllTalkTTS: Settings loaded');
-        await this.initEndpoint();
-    }
-
-    async initEndpoint() {
         try {
             // Check if TTS provider is ready
-            this.setupEventListeners();
-            this.updateLanguageDropdown();
             await this.checkReady();
             await this.updateSettingsFromServer(); // Fetch dynamic settings from the TTS server
             await this.fetchTtsVoiceObjects(); // Fetch voices only if service is ready
             this.updateNarratorVoicesDropdown();
+            this.updateLanguageDropdown();
+            this.setupEventListeners();
             this.applySettingsToHTML();
             updateStatus('Ready');
         } catch (error) {
@@ -492,14 +488,15 @@ class AllTalkTtsProvider {
         const modelSelect = document.getElementById('switch_model');
         if (modelSelect) {
             // Remove the event listener if it was previously added
+            modelSelect.removeEventListener('change', debouncedModelSelectChange);
             // Add the debounced event listener
-            $(modelSelect).off('change').on('change', debouncedModelSelectChange);
+            modelSelect.addEventListener('change', debouncedModelSelectChange);
         }
 
         // DeepSpeed Listener
         const deepspeedCheckbox = document.getElementById('deepspeed');
         if (deepspeedCheckbox) {
-            $(deepspeedCheckbox).off('change').on('change', async (event) => {
+            deepspeedCheckbox.addEventListener('change', async (event) => {
                 const deepSpeedValue = event.target.checked ? 'True' : 'False';
                 // Set status to Processing
                 updateStatus('Processing');
@@ -525,7 +522,7 @@ class AllTalkTtsProvider {
         // Low VRAM Listener
         const lowVramCheckbox = document.getElementById('low_vram');
         if (lowVramCheckbox) {
-            $(lowVramCheckbox).off('change').on('change', async (event) => {
+            lowVramCheckbox.addEventListener('change', async (event) => {
                 const lowVramValue = event.target.checked ? 'True' : 'False';
                 // Set status to Processing
                 updateStatus('Processing');
@@ -551,7 +548,7 @@ class AllTalkTtsProvider {
         // Narrator Voice Dropdown Listener
         const narratorVoiceSelect = document.getElementById('narrator_voice');
         if (narratorVoiceSelect) {
-            $(narratorVoiceSelect).off('change').on('change', (event) => {
+            narratorVoiceSelect.addEventListener('change', (event) => {
                 this.settings.narrator_voice_gen = `${event.target.value}.wav`;
                 this.onSettingsChange(); // Save the settings after change
             });
@@ -559,7 +556,7 @@ class AllTalkTtsProvider {
 
         const textNotInsideSelect = document.getElementById('at_narrator_text_not_inside');
         if (textNotInsideSelect) {
-            $(textNotInsideSelect).off('change').on('change', (event) => {
+            textNotInsideSelect.addEventListener('change', (event) => {
                 this.settings.text_not_inside = event.target.value;
                 this.onSettingsChange(); // Save the settings after change
             });
@@ -572,7 +569,7 @@ class AllTalkTtsProvider {
         const ttsNarrateDialoguesCheckbox = document.getElementById('tts_narrate_dialogues'); // Access the checkbox from index.js
 
         if (atNarratorSelect && textNotInsideSelect && narratorVoiceSelect) {
-            $(atNarratorSelect).off('change').on('change', (event) => {
+            atNarratorSelect.addEventListener('change', (event) => {
                 const isNarratorEnabled = event.target.value === 'true';
                 this.settings.narrator_enabled = isNarratorEnabled; // Update the setting here
                 textNotInsideSelect.disabled = !isNarratorEnabled;
@@ -608,7 +605,7 @@ class AllTalkTtsProvider {
         const atGenerationMethodSelect = document.getElementById('at_generation_method');
         const atNarratorEnabledSelect = document.getElementById('at_narrator_enabled');
         if (atGenerationMethodSelect) {
-            $(atGenerationMethodSelect).off('change').on('change', (event) => {
+            atGenerationMethodSelect.addEventListener('change', (event) => {
                 const selectedMethod = event.target.value;
 
                 if (selectedMethod === 'streaming_enabled') {
@@ -629,7 +626,7 @@ class AllTalkTtsProvider {
         // Listener for Language Dropdown
         const languageSelect = document.getElementById('language_options');
         if (languageSelect) {
-            $(languageSelect).off('change').on('change', (event) => {
+            languageSelect.addEventListener('change', (event) => {
                 this.settings.language = event.target.value;
                 this.onSettingsChange(); // Save the settings after change
             });
@@ -638,7 +635,7 @@ class AllTalkTtsProvider {
         // Listener for AllTalk Endpoint Input
         const atServerInput = document.getElementById('at_server');
         if (atServerInput) {
-            $(atServerInput).off('input').on('input', (event) => {
+            atServerInput.addEventListener('input', (event) => {
                 this.settings.provider_endpoint = event.target.value;
                 this.onSettingsChange(); // Save the settings after change
             });
@@ -668,7 +665,8 @@ class AllTalkTtsProvider {
     //#########################//
 
     async onRefreshClick() {
-        await this.initEndpoint();
+        await this.checkReady(); // Check if the TTS provider is ready
+        await this.loadSettings(this.settings); // Reload the settings
         // Additional actions as needed
     }
 

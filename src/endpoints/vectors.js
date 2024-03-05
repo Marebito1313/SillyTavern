@@ -4,9 +4,6 @@ const express = require('express');
 const sanitize = require('sanitize-filename');
 const { jsonParser } = require('../express-common');
 
-// Don't forget to add new sources to the SOURCES array
-const SOURCES = ['transformers', 'mistral', 'openai', 'extras', 'palm'];
-
 /**
  * Gets the vector for the given text from the given source.
  * @param {string} source - The source of the vector
@@ -264,7 +261,8 @@ router.post('/purge', jsonParser, async (req, res) => {
 
         const collectionId = String(req.body.collectionId);
 
-        for (const source of SOURCES) {
+        const sources = ['transformers', 'openai', 'palm'];
+        for (const source of sources) {
             const index = await getIndex(collectionId, source, false);
 
             const exists = await index.isIndexCreated();
